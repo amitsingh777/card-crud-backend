@@ -1,18 +1,13 @@
 const { MongoClient } = require("mongodb");
 const uri = process.env.URI.replace("<password>", process.env.PASSWORD);
 
-const client = new MongoClient(uri, {
-  useUnifiedTopology: true,
-});
+const mongoClient = async () => {
+  const client = new MongoClient(uri, {
+    useUnifiedTopology: true,
+  });
+  
+  await client.connect();
+  return client;
+};
 
-async function run() {
-  try {
-    await client.connect();
-    console.log("Connected successfully to server");
-  } finally {
-    await client.close();
-  }
-}
-run().catch(console.dir);
-
-module.exports = client;
+module.exports = mongoClient;

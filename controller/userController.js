@@ -1,18 +1,15 @@
-const client = require("../mongoClient");
+const mongoClient = require("../mongoClient");
 const { ObjectId } = require("mongodb");
-const connection = async () => {
-  await client.connect();
-  const userDB = client.db("userDetailsDB");
-  const userCollection = userDB.collection("userDetails");
-  return userCollection;
-};
+
 exports.createUser = async (req, res) => {
+ const client = await mongoClient();
+  const userCollection = client.db("userDetailsDB").collection("userDetails");
   try {
-    const userCollection = await connection();
+    //db.collection
     const acknowledge = await userCollection.insertOne(req.body);
     res.status(201).json({
       status: "success",
-      data: acknowledge,
+      data: acknowledge.ops[0],
     });
   } catch (err) {
     res.status(400).json({
@@ -20,12 +17,13 @@ exports.createUser = async (req, res) => {
       message: err,
     });
   } finally {
-    await client.close();
+    client.close();
   }
 };
 exports.getUser = async (req, res) => {
+ const client = await mongoClient();
+  const userCollection = client.db("userDetailsDB").collection("userDetails");
   try {
-    const userCollection = await connection();
     const acknowledge = await userCollection
       .find({ _id: ObjectId(req.params.id) })
       .toArray();
@@ -40,12 +38,13 @@ exports.getUser = async (req, res) => {
       message: err,
     });
   } finally {
-    await client.close();
+    client.close();
   }
 };
 exports.getUsers = async (req, res) => {
+  const client = await mongoClient();
+  const userCollection = client.db("userDetailsDB").collection("userDetails");
   try {
-    const userCollection = await connection();
     const acknowledge = await userCollection.find().toArray();
     res.status(201).json({
       status: "success",
@@ -55,17 +54,19 @@ exports.getUsers = async (req, res) => {
       },
     });
   } catch (err) {
+    
     res.status(400).json({
       status: "fail",
       message: err,
     });
   } finally {
-    await client.close();
+    client.close();
   }
 };
 exports.updateUser = async (req, res) => {
+ const client = await mongoClient();
+  const userCollection = client.db("userDetailsDB").collection("userDetails");
   try {
-    const userCollection = await connection();
     const acknowledge = await userCollection.updateOne(
       { _id: ObjectId(req.params.id) },
       { $set: req.body }
@@ -80,12 +81,13 @@ exports.updateUser = async (req, res) => {
       message: err,
     });
   } finally {
-    await client.close();
+    client.close();
   }
 };
 exports.deleteUser = async (req, res) => {
+ const client = await mongoClient();
+  const userCollection = client.db("userDetailsDB").collection("userDetails");
   try {
-    const userCollection = await connection();
     const acknowledge = await userCollection.deleteOne({
       _id: ObjectId(req.params.id),
     });
@@ -99,6 +101,6 @@ exports.deleteUser = async (req, res) => {
       message: err,
     });
   } finally {
-    await client.close();
+    client.close();
   }
 };
